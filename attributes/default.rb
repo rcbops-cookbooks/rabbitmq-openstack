@@ -5,12 +5,12 @@ default['rabbitmq']['services']['queue']['network'] = "nova"
 case platform
 when "fedora", "redhat"
   default["rabbitmq"]["platform"] = {
-    "rabbitmq_service" = > "rabbitmq-server",
+    "rabbitmq_service" => "rabbitmq-server",
     "rabbitmq_service_regex" => "-config /etc/rabbitmq/rabbitmq"
   }
 when "ubuntu"
   default["rabbitmq"]["platform"] = {
-    "rabbitmq_service" = > "rabbitmq-server",
+    "rabbitmq_service" => "rabbitmq-server",
     "rabbitmq_service_regex" => "-config /etc/rabbitmq/rabbitmq"
   }
 end
