@@ -11,6 +11,18 @@ node.set["rabbitmq"]["address"] = rabbit_info["host"]
 #             we should probably setup different users for nova and glance
 # TODO(shep): Should probably use Opscode::OpenSSL::Password for default_password
 
+# Since the upstream rabbitmq server does crazy things, like install packages from
+# random apt repos.. lets pin to the ubuntu repo.
+apt_preference "rabbitmq-server" do
+  pin "release o=Ubuntu"
+  pin_priority "700"
+end
+
+package "rabbitmq-server" do
+   action :upgrade
+   options platform_options["package_overrides"]
+end
+
 include_recipe "rabbitmq::default"
 
 monitoring_procmon "rabbitmq-server" do
