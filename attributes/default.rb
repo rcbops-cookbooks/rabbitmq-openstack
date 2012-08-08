@@ -6,11 +6,13 @@ case platform
 when "fedora", "redhat"
   default["rabbitmq"]["platform"] = {
     "rabbitmq_service" => "rabbitmq-server",
-    "rabbitmq_service_regex" => "/etc/rabbitmq/rabbitmq"
+    "rabbitmq_service_regex" => "/etc/rabbitmq/rabbitmq",
+    "package_overrides" => "",
   }
 when "ubuntu"
   default["rabbitmq"]["platform"] = {
     "rabbitmq_service" => "rabbitmq-server",
-    "rabbitmq_service_regex" => "/etc/rabbitmq/rabbitmq"
+    "rabbitmq_service_regex" => "/etc/rabbitmq/rabbitmq",
+    "package_overrides" => "-o Dpkg::Options::='--force-confold' -o Dpkg::Options::='--force-confdef'"
   }
 end
