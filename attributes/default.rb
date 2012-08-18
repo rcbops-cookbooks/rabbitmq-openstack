@@ -3,7 +3,7 @@ default['rabbitmq']['services']['queue']['port'] = "5672"
 default['rabbitmq']['services']['queue']['network'] = "nova"
 
 case platform
-when "fedora", "redhat"
+when "fedora", "redhat", "centos"
   default["rabbitmq"]["platform"] = {
     "rabbitmq_service" => "rabbitmq-server",
     "rabbitmq_service_regex" => "/etc/rabbitmq/rabbitmq",
