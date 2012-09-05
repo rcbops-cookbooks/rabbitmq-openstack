@@ -13,9 +13,12 @@ node.set["rabbitmq"]["address"] = rabbit_info["host"]
 
 # Since the upstream rabbitmq server does crazy things, like install packages from
 # random apt repos.. lets pin to the ubuntu repo.
-apt_preference "rabbitmq-server" do
-  pin "release o=Ubuntu"
-  pin_priority "700"
+case node["platform"]
+when "ubuntu", "debian"
+    apt_preference "rabbitmq-server" do
+        pin "release o=Ubuntu"
+        pin_priority "700"
+    end
 end
 
 package "rabbitmq-server" do
