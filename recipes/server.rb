@@ -31,6 +31,10 @@ include_recipe "rabbitmq::default"
 # TODO - this needs to be templated out
 rabbitmq_user "guest" do
   password "guest"
+  action :add
+end
+
+rabbitmq_user "guest" do
   vhost "/"
   permissions "\".*\" \".*\" \".*\""
   action :set_permissions
