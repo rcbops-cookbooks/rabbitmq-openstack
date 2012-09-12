@@ -42,10 +42,8 @@ end
 
 monitoring_procmon "rabbitmq-server" do
   service_name=platform_options["rabbitmq_service"]
-
   process_name platform_options["rabbitmq_service_regex"]
-  start_cmd "/usr/sbin/service #{service_name} start"
-  stop_cmd "/usr/sbin/service #{service_name} stop"
+  script_name service_name
 end
 
 monitoring_metric "rabbitmq-server-proc" do
