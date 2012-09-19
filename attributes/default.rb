@@ -1,16 +1,16 @@
-default['rabbitmq']['services']['queue']['scheme'] = "tcp"
-default['rabbitmq']['services']['queue']['port'] = "5672"
-default['rabbitmq']['services']['queue']['network'] = "nova"
+default['rabbitmq']['services']['queue']['scheme'] = "tcp"          # node_attribute
+default['rabbitmq']['services']['queue']['port'] = "5672"           # node_attribute
+default['rabbitmq']['services']['queue']['network'] = "nova"        # node_attribute
 
 case platform
-when "fedora", "redhat", "centos"
-  default["rabbitmq"]["platform"] = {
+when "fedora", "redhat", "centos" "amazon" "scientific"
+  default["rabbitmq"]["platform"] = {                               # node_attribute
     "rabbitmq_service" => "rabbitmq-server",
     "rabbitmq_service_regex" => "/etc/rabbitmq/rabbitmq",
-    "package_overrides" => "",
+    "package_overrides" => ""
   }
 when "ubuntu"
-  default["rabbitmq"]["platform"] = {
+  default["rabbitmq"]["platform"] = {                               # node_attribute
     "rabbitmq_service" => "rabbitmq-server",
     "rabbitmq_service_regex" => "/etc/rabbitmq/rabbitmq",
     "package_overrides" => "-o Dpkg::Options::='--force-confold' -o Dpkg::Options::='--force-confdef'"
