@@ -3,7 +3,7 @@ default['rabbitmq']['services']['queue']['port'] = "5672"           # node_attri
 default['rabbitmq']['services']['queue']['network'] = "nova"        # node_attribute
 
 case platform
-when "fedora", "redhat", "centos" "amazon" "scientific"
+when "fedora", "redhat", "centos", "amazon", "scientific"
   default["rabbitmq"]["platform"] = {                               # node_attribute
     "rabbitmq_service" => "rabbitmq-server",
     "rabbitmq_service_regex" => "/etc/rabbitmq/rabbitmq",
