@@ -90,6 +90,7 @@ if rcb_safe_deref(node, "rabbitmq.services.queue.vip")
     notify_master "/etc/init.d/rabbitmq-server restart"
     notify_backup "/etc/init.d/rabbitmq-server restart"
     notify_fault "/etc/init.d/rabbitmq-server restart"
+    notifies :restart, resources(:service => "keepalived")
   end
 end
 
