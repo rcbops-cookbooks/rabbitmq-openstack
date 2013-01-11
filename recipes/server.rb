@@ -60,9 +60,6 @@ when "ubuntu", "debian"
 #  node.override["rabbitmq"]["use_yum"] = true
 end
 
-# check if we are likely running as a pair under openstack-ha
-#if rcb_safe_deref(node, "rabbitmq.services.queue.vip")
-
 # are there any other rabbits out there? if so grab the cookie off them
 if other_rabbit = get_settings_by_role("rabbitmq-server", "rabbitmq", false)
   node.set["rabbitmq"]["cluster"] = true
@@ -75,7 +72,6 @@ else
 end
 
 # is there a vip for us? if so, set up keepalived vrrp
-
 if rcb_safe_deref(node, "rabbitmq.services.queue.vip")
   include_recipe "keepalived"
   vip = node["rabbitmq"]["services"]["queue"]["vip"]
@@ -93,8 +89,6 @@ if rcb_safe_deref(node, "rabbitmq.services.queue.vip")
     notifies :restart, resources(:service => "keepalived")
   end
 end
-
-
 
 include_recipe "rabbitmq::default"
 
