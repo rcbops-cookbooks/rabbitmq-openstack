@@ -7,6 +7,6 @@ version           "1.0.9"
   supports os
 end
 
-%w{ rabbitmq osops-utils }.each do |dep|
+%w{ keepalived rabbitmq osops-utils openssl sysctl }.each do |dep|
   depends dep
 end
