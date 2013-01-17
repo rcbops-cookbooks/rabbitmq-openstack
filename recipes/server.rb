@@ -75,9 +75,9 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
     virtual_ipaddress Array(vip)
     virtual_router_id router_id.to_i  # Needs to be a integer between 0..255
     track_script "rabbitmq"
-    notify_master "/usrs/bin/service rabbitmq-server restart"
-    notify_backup "/usrs/bin/service rabbitmq-server restart"
-    notify_fault "/usrs/bin/service rabbitmq-server restart"
+    notify_master "/usr/sbin/service rabbitmq-server restart"
+    notify_backup "/usr/sbin/service rabbitmq-server restart"
+    notify_fault "/usr/sbin/service rabbitmq-server restart"
     notifies :restart, resources(:service => "keepalived")
   end
 
