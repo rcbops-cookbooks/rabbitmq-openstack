@@ -65,9 +65,8 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
   router_id = vip.split(".")[3]
 
   keepalived_chkscript "rabbitmq" do
-    script "/etc/init.d/rabbitmq-server status"
+    script "/usr/sbin/service rabbitmq-server status"
     interval 5
-    weight 2
     action :create
   end
 
@@ -76,9 +75,9 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
     virtual_ipaddress Array(vip)
     virtual_router_id router_id.to_i  # Needs to be a integer between 0..255
     track_script "rabbitmq"
-    notify_master "/etc/init.d/rabbitmq-server restart"
-    notify_backup "/etc/init.d/rabbitmq-server restart"
-    notify_fault "/etc/init.d/rabbitmq-server restart"
+    notify_master "/usrs/bin/service rabbitmq-server restart"
+    notify_backup "/usrs/bin/service rabbitmq-server restart"
+    notify_fault "/usrs/bin/service rabbitmq-server restart"
     notifies :restart, resources(:service => "keepalived")
   end
 
@@ -92,28 +91,30 @@ service "rabbitmq-server" do
   restart_command "pkill -9 -u rabbitmq  ; setsid /etc/init.d/rabbitmq-server start"
 end
 
-if File.exists?(node['rabbitmq']['erlang_cookie_path'])
-  existing_erlang_key =  File.read(node['rabbitmq']['erlang_cookie_path'])
-else
-  existing_erlang_key = ""
-end
-
-if node['rabbitmq']['erlang_cookie'] != existing_erlang_key
-
-  template "/var/lib/rabbitmq/.erlang.cookie" do
-    cookbook "rabbitmq"
-    source "doterlang.cookie.erb"
-    owner "rabbitmq"
-    group "rabbitmq"
-    mode 0400
-  end
-
-  service "rabbitmq-server" do
-    action :restart
-    retries 5 # yes
-  end
-
-end
+# TODO(breu): commenting out for now.  this is a race condition
+#
+#if File.exists?(node['rabbitmq']['erlang_cookie_path'])
+#  existing_erlang_key =  File.read(node['rabbitmq']['erlang_cookie_path'])
+#else
+#  existing_erlang_key = ""
+#end
+#
+#if node['rabbitmq']['erlang_cookie'] != existing_erlang_key
+#
+#  template "/var/lib/rabbitmq/.erlang.cookie" do
+#    cookbook "rabbitmq"
+#    source "doterlang.cookie.erb"
+#    owner "rabbitmq"
+#    group "rabbitmq"
+#    mode 0400
+#  end
+#
+#  service "rabbitmq-server" do
+#    action :restart
+#    retries 5 # yes
+#  end
+#
+#end
 
 # TODO - this needs to be templated out
 rabbitmq_user "guest" do
