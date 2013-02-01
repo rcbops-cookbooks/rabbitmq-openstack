@@ -61,6 +61,8 @@ include_recipe "rabbitmq::default"
 # ugh. rabbit just won't die. We're overriding the restart command defined in
 # the opscode cookbook
 service "rabbitmq-server" do
+  ignore_failure true
+  retries 5
   restart_command "kill -9 $(pidof beam.smp) > /dev/null 2>&1 || true ; kill -9 $(pidof beam.smp) > /dev/null 2>&1 || true ; service rabbitmq-server start"
 end
 
