@@ -61,7 +61,7 @@ include_recipe "rabbitmq::default"
 # ugh. rabbit just won't die. We're overriding the restart command defined in
 # the opscode cookbook
 service "rabbitmq-server" do
-  restart_command "pkill -9 -u rabbitmq  ; setsid /etc/init.d/rabbitmq-server start"
+  restart_command "pkill -9 -u rabbitmq ; ; pkill -9 -f beam.smp ; setsid /etc/init.d/rabbitmq-server start"
 end
 
 # TODO(breu): commenting out for now.  this is a race condition
