@@ -7,6 +7,8 @@ version           "1.0.11"
   supports os
 end
 
-%w{ keepalived rabbitmq osops-utils openssl sysctl }.each do |dep|
+%w{ keepalived osops-utils openssl sysctl }.each do |dep|
   depends dep
 end
+
+depends "rabbitmq", ">= 1.8.1"
