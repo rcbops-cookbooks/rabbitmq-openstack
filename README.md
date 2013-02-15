@@ -40,7 +40,9 @@ default
 Attributes
 ==========
 
+* `rabbitmq['services']['queue']['scheme']` - Communication scheme
 * `rabbitmq['services']['queue']['port']` - Port on which rabbitmq listens
+* `rabbitmq['services']['queue']['network']` - `osops_networks` network name which service operates on
 
 Templates
 =========
