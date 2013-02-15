@@ -7,7 +7,7 @@ version           "1.0.11"
   supports os
 end
 
-%w{ keepalived osops-utils openssl }.each do |dep|
+%w{ keepalived monitoring osops-utils openssl }.each do |dep|
   depends dep
 end
 

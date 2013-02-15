@@ -19,10 +19,11 @@ Cookbooks
 
 The following cookbooks are dependencies:
 
-* keepalived
-* rabbitmq
-* openssl
-* osops-utils
+* [keepalived](https://github.com/rcbops-cookbooks/keepalived)
+* [monitoring](https://github.com/rcbops-cookbooks/monitoring)
+* [rabbitmq](https://github.com/opscode-cookbooks/rabbitmq)
+* [openssl](https://github.com/opscode-cookbooks/openssl)
+* [osops-utils](https://github.com/rcbops-cookbooks/osops-utils)
 
 Resources/Providers
 ===================
@@ -40,7 +41,9 @@ default
 Attributes
 ==========
 
+* `rabbitmq['services']['queue']['scheme']` - Communication scheme
 * `rabbitmq['services']['queue']['port']` - Port on which rabbitmq listens
+* `rabbitmq['services']['queue']['network']` - `osops_networks` network name which service operates on
 
 Templates
 =========

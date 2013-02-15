@@ -20,6 +20,7 @@
 ::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
 
 include_recipe "osops-utils"
+include_recipe "monitoring"
 platform_options = node["rabbitmq"]["platform"]
 
 # set some rabbit attributes
