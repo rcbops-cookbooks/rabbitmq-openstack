@@ -1,7 +1,7 @@
 maintainer        "Rackspace US, Inc."
 license           "Apache 2.0"
 description       "Makes the rabbitmq cookbook behave correctly with OpenStack"
-version           "1.0.12"
+version           "1.0.13"
 
 %w{ centos ubuntu }.each do |os|
   supports os
