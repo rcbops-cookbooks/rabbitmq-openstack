@@ -17,7 +17,10 @@
 # limitations under the License.
 #
 
+
 ::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
+chef_gem "chef-rewind"
+require 'chef/rewind'
 
 include_recipe "osops-utils"
 include_recipe "monitoring"
@@ -61,7 +64,8 @@ include_recipe "rabbitmq::default"
 
 # ugh. rabbit just won't die. We're overriding the restart command defined in
 # the opscode cookbook
-service "rabbitmq-server" do
+rewind "service[rabbitmq-server]" do
+#service "rabbitmq-server" do
   ignore_failure true
   retries 5
   restart_command "kill -9 $(pidof beam.smp) > /dev/null 2>&1 || true ; kill -9 $(pidof beam.smp) > /dev/null 2>&1 || true ; service rabbitmq-server start"
@@ -93,12 +97,14 @@ end
 #end
 
 # TODO - this needs to be templated out
-rabbitmq_user "guest" do
+rabbitmq_user "add guest user" do
+  user "guest"
   password "guest"
   action :add
 end
 
-rabbitmq_user "guest" do
+rabbitmq_user "set guest user permissions" do
+  user "guest"
   vhost "/"
   permissions '.* .* .*'
   action :set_permissions
