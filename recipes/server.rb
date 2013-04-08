@@ -36,6 +36,10 @@ node.set["rabbitmq"]["address"] = "0.0.0.0"
 # TODO(shep): Should probably use Opscode::OpenSSL::Password for default_password
 #
 
+# default to using distro-provided packages, otherwise we'll get 3.x.x from 
+# rabbitmq.com
+node.set["rabbitmq"]["use_distro_version"] = true
+
 # are there any other rabbits out there? if so grab the cookie off them
 if other_rabbit = get_settings_by_role("rabbitmq-server", "rabbitmq", false)
   node.set["rabbitmq"]["erlang_cookie"] = other_rabbit["erlang_cookie"]
