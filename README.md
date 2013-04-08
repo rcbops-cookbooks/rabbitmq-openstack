@@ -35,7 +35,7 @@ Recipes
 
 default
 ----
-- Includes recipe `rabbitmq::server`
+- Includes recipe `rabbitmq::default`
 - Includes recipe `keepalived` if `rabbitmq-queue` VIP exists
 
 Attributes
