@@ -100,8 +100,8 @@ rabbitmq_user "set guest user permissions" do
 end
 
 monitoring_procmon "rabbitmq-server" do
+  pid_file "/var/run/rabbitmq/pid"
   service_name=platform_options["rabbitmq_service"]
-  process_name platform_options["rabbitmq_service_regex"]
   script_name service_name
 end
 
