@@ -119,6 +119,10 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
   vip = node["vips"]["rabbitmq-queue"]
   vrrp_name = "vi_#{vip.gsub(/\./, '_')}"
   vrrp_interface = get_if_for_net('public', node)
+  # TODO(anyone): fix this in a way that lets us run multiple clusters in the
+  #               same broadcast domain.
+  # this doesn't solve for the last octect == 255
+  router_id = vip.split(".")[3].to_i + 1
 
   keepalived_chkscript "rabbitmq" do
     script "#{platform_options["service_bin"]} rabbitmq-server status"
@@ -129,7 +133,7 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
   keepalived_vrrp vrrp_name do
     interface vrrp_interface
     virtual_ipaddress Array(vip)
-    virtual_router_id node["rabbitmq"]["ha"]["vrid"]  # Needs to be a integer between 1..255
+    virtual_router_id router_id  # Needs to be a integer between 1..255
     track_script "rabbitmq"
     notify_master "#{platform_options["service_bin"]} rabbitmq-server restart; #{platform_options["service_bin"]} keystone restart"
     notify_backup "#{platform_options["service_bin"]} rabbitmq-server restart; #{platform_options["service_bin"]} keystone restart"
