@@ -1,7 +1,7 @@
 default['rabbitmq']['services']['queue']['scheme'] = "tcp"          # node_attribute
 default['rabbitmq']['services']['queue']['port'] = "5672"           # node_attribute
 default['rabbitmq']['services']['queue']['network'] = "nova"        # node_attribute
-default["vips"]["osops_network"] = "public"                         # node_attribute
+default['rabbitmq']['services']['queue']['vip_network'] = "public"  # node_attribute
 
 case platform
 when "fedora", "redhat", "centos", "amazon", "scientific"
