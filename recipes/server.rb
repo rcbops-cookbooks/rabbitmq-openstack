@@ -23,7 +23,6 @@ chef_gem "chef-rewind"
 require 'chef/rewind'
 
 include_recipe "osops-utils"
-include_recipe "monitoring"
 platform_options = node["rabbitmq"]["platform"]
 
 # set some rabbit attributes
@@ -97,20 +96,6 @@ rabbitmq_user "set guest user permissions" do
   vhost "/"
   permissions '.* .* .*'
   action :set_permissions
-end
-
-monitoring_procmon "rabbitmq-server" do
-  pid_file "/var/run/rabbitmq/pid"
-  service_name=platform_options["rabbitmq_service"]
-  script_name service_name
-end
-
-monitoring_metric "rabbitmq-server-proc" do
-  type "proc"
-  proc_name "rabbitmq-server"
-  proc_regex platform_options["rabbitmq_service_regex"]
-
-  alarms(:failure_min => 1.0)
 end
 
 # is there a vip for us? if so, set up keepalived vrrp
