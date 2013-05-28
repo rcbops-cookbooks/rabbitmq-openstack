@@ -104,9 +104,8 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
   vip = node["vips"]["rabbitmq-queue"]
   vrrp_name = "vi_#{vip.gsub(/\./, '_')}"
   vrrp_interface = get_if_for_net('public', node)
-  # TODO(anyone): fix this in a way that lets us run multiple clusters in the
-  #               same broadcast domain.
-  # this doesn't solve for the last octect == 255
+  # VRID is set to last octet of IP if not specified.
+  # We can override this to avoid last octet of 255 or IP conflicts
   if node["rabbitmq"]["ha"]["vrid"] > 0 and node["rabbitmq"]["ha"]["vrid"] < 256
     router_id = node["rabbitmq"]["ha"]["vrid"]
   else
