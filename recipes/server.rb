@@ -127,10 +127,9 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
     virtual_ipaddress Array(vip)
     virtual_router_id router_id  # Needs to be a integer between 1..255
     track_script "rabbitmq"
-    notify_master "#{platform_options["service_bin"]} rabbitmq-server restart; #{platform_options["service_bin"]} keystone restart"
-    notify_backup "#{platform_options["service_bin"]} rabbitmq-server restart; #{platform_options["service_bin"]} keystone restart"
-    notify_fault  "#{platform_options["service_bin"]} rabbitmq-server restart; #{platform_options["service_bin"]} keystone restart"
-    notifies :restart, resources(:service => "keepalived")
+    notify_backup "#{platform_options["service_bin"]} rabbitmq-server restart"
+    notify_fault  "#{platform_options["service_bin"]} rabbitmq-server restart"
+    notifies :run, "execute[reload-keepalived]", :immediately
   end
 
 end
