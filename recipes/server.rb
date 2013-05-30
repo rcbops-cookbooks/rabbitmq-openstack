@@ -50,13 +50,15 @@ end
 
 include_recipe "rabbitmq::default"
 
-# ugh. rabbit just won't die. We're overriding the restart command defined in
-# the opscode cookbook
+# sleep for 30s before restarting rabbitmq-server.  There is a race on new
+# installs due to keepalived restarting rabbitmq-server on state transitions.
+# this is a workaround until we get real clustered rabbitmq-server
+# TODO(breu): remove this when clustered rabbitmq-server is done
 rewind "service[rabbitmq-server]" do
 #service "rabbitmq-server" do
-  ignore_failure true
+  ignore_failure false
   retries 5
-  restart_command "kill -9 $(pidof beam.smp) > /dev/null 2>&1 || true ; kill -9 $(pidof beam.smp) > /dev/null 2>&1 || true ; service rabbitmq-server start"
+  restart_command "sleep 30s ; service rabbitmq-server start"
 end
 
 # TODO(breu): commenting out for now.  this is a race condition
