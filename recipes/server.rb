@@ -58,7 +58,7 @@ rewind "service[rabbitmq-server]" do
 #service "rabbitmq-server" do
   ignore_failure false
   retries 5
-  restart_command "sleep 30s ; service rabbitmq-server start"
+  restart_command "sleep 30s ; service rabbitmq-server restart"
 end
 
 # TODO(breu): commenting out for now.  this is a race condition
