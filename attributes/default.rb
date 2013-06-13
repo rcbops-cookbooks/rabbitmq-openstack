@@ -3,7 +3,7 @@ default['rabbitmq']['services']['queue']['port'] = "5672"           # node_attri
 default['rabbitmq']['services']['queue']['network'] = "nova"        # node_attribute
 default['rabbitmq']['services']['queue']['vip_network'] = "public"
 
-default['rabbitmq']['ha']['vrid'] = 0
+default['rabbitmq']['ha']['vrid'] = 11
 
 case platform
 when "fedora", "redhat", "centos", "amazon", "scientific"
