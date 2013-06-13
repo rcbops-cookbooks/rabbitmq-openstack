@@ -107,14 +107,7 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
   vrrp_name = "vi_#{vip.gsub(/\./, '_')}"
   vrrp_network = node["rabbitmq"]["services"]["queue"]["vip_network"]
   vrrp_interface = get_if_for_net(vrrp_network, node)
-  # VRID is set to last octet of IP if not specified.
-  # We can override this to avoid last octet of 255 or IP conflicts
-  if node["rabbitmq"]["ha"]["vrid"] > 0 and node["rabbitmq"]["ha"]["vrid"] < 256
-    router_id = node["rabbitmq"]["ha"]["vrid"]
-  else
-    Chef::Log.info("Invalid or no vrid set - defaulting to last octet of IP + 1")
-    router_id = vip.split(".")[3].to_i + 1
-  end
+  router_id = node["rabbitmq"]["ha"]["vrid"]
 
   keepalived_chkscript "rabbitmq" do
     script "#{platform_options["service_bin"]} rabbitmq-server status"
