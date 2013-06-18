@@ -1,7 +1,6 @@
 default['rabbitmq']['services']['queue']['scheme'] = "tcp"          # node_attribute
 default['rabbitmq']['services']['queue']['port'] = "5672"           # node_attribute
-default['rabbitmq']['services']['queue']['network'] = "nova"        # node_attribute
-default['rabbitmq']['services']['queue']['vip_network'] = "public"
+default['rabbitmq']['services']['queue']['network'] = "management"        # node_attribute
 
 default['rabbitmq']['ha']['vrid'] = 11
 
