@@ -105,7 +105,7 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
   include_recipe "keepalived"
   vip = node["vips"]["rabbitmq-queue"]
   vrrp_name = "vi_#{vip.gsub(/\./, '_')}"
-  vrrp_network = node["rabbitmq"]["services"]["queue"]["vip_network"]
+  vrrp_network = node["rabbitmq"]["services"]["queue"]["network"]
   vrrp_interface = get_if_for_net(vrrp_network, node)
   router_id = node["rabbitmq"]["ha"]["vrid"]
 
