@@ -51,13 +51,15 @@ end
 
 include_recipe "rabbitmq::default"
 
-# ugh. rabbit just won't die. We're overriding the restart command defined in
-# the opscode cookbook
+# sleep for 30s before restarting rabbitmq-server.  There is a race on new
+# installs due to keepalived restarting rabbitmq-server on state transitions.
+# this is a workaround until we get real clustered rabbitmq-server
+# TODO(breu): remove this when clustered rabbitmq-server is done
 rewind "service[rabbitmq-server]" do
 #service "rabbitmq-server" do
-  ignore_failure true
+  ignore_failure false
   retries 5
-  restart_command "kill -9 $(pidof beam.smp) > /dev/null 2>&1 || true ; kill -9 $(pidof beam.smp) > /dev/null 2>&1 || true ; service rabbitmq-server start"
+  restart_command "sleep 30s ; service rabbitmq-server restart"
 end
 
 # TODO(breu): commenting out for now.  this is a race condition
@@ -118,7 +120,8 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
   include_recipe "keepalived"
   vip = node["vips"]["rabbitmq-queue"]
   vrrp_name = "vi_#{vip.gsub(/\./, '_')}"
-  vrrp_interface = get_if_for_net('public', node)
+  vrrp_network = node["rabbitmq"]["services"]["queue"]["network"]
+  vrrp_interface = get_if_for_net(vrrp_network, node)
   router_id = vip.split(".")[3]
 
   keepalived_chkscript "rabbitmq" do
@@ -132,10 +135,9 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
     virtual_ipaddress Array(vip)
     virtual_router_id router_id.to_i  # Needs to be a integer between 0..255
     track_script "rabbitmq"
-    notify_master "#{platform_options["service_bin"]} rabbitmq-server restart; #{platform_options["service_bin"]} keystone restart"
-    notify_backup "#{platform_options["service_bin"]} rabbitmq-server restart; #{platform_options["service_bin"]} keystone restart"
-    notify_fault  "#{platform_options["service_bin"]} rabbitmq-server restart; #{platform_options["service_bin"]} keystone restart"
-    notifies :restart, resources(:service => "keepalived")
+    notify_backup "#{platform_options["service_bin"]} rabbitmq-server restart"
+    notify_fault  "#{platform_options["service_bin"]} rabbitmq-server restart"
+    notifies :run, "execute[reload-keepalived]", :immediately
   end
 
 end
