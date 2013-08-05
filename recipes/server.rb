@@ -39,15 +39,6 @@ node.set["rabbitmq"]["address"] = "0.0.0.0"
 # rabbitmq.com
 node.set["rabbitmq"]["use_distro_version"] = true
 
-# are there any other rabbits out there? if so grab the cookie off them
-if other_rabbit = get_settings_by_role("rabbitmq-server", "rabbitmq", false)
-  node.set["rabbitmq"]["erlang_cookie"] = other_rabbit["erlang_cookie"]
-  Chef::Log.info("getting erlang cookie from other rabbitmq node")
-else
-  node.set_unless["rabbitmq"]["erlang_cookie"] = secure_password
-  Chef::Log.info("I am the only rabbitmq node - setting erlang cookie myself")
-end
-
 include_recipe "rabbitmq::default"
 
 # sleep for 30s before restarting rabbitmq-server.  There is a race on new
@@ -58,33 +49,11 @@ rewind "service[rabbitmq-server]" do
 #service "rabbitmq-server" do
   ignore_failure false
   retries 5
-  restart_command "sleep 30s ; service rabbitmq-server restart"
+  start_command "sleep 15s ; service rabbitmq-server start"
+  stop_command "sleep 15s ; service rabbitmq-server stop"
+  restart_command "sleep 15s ; service rabbitmq-server restart"
+  action [ :enable ]
 end
-
-# TODO(breu): commenting out for now.  this is a race condition
-#
-#if File.exists?(node['rabbitmq']['erlang_cookie_path'])
-#  existing_erlang_key =  File.read(node['rabbitmq']['erlang_cookie_path'])
-#else
-#  existing_erlang_key = ""
-#end
-#
-#if node['rabbitmq']['erlang_cookie'] != existing_erlang_key
-#
-#  template "/var/lib/rabbitmq/.erlang.cookie" do
-#    cookbook "rabbitmq"
-#    source "doterlang.cookie.erb"
-#    owner "rabbitmq"
-#    group "rabbitmq"
-#    mode 0400
-#  end
-#
-#  service "rabbitmq-server" do
-#    action :restart
-#    retries 5 # yes
-#  end
-#
-#end
 
 # TODO - this needs to be templated out
 rabbitmq_user "add guest user" do
@@ -105,9 +74,19 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
   include_recipe "keepalived"
   vip = node["vips"]["rabbitmq-queue"]
   vrrp_name = "vi_#{vip.gsub(/\./, '_')}"
+  if not vrrp_network = rcb_safe_deref(node, "vips_config_#{vip}_network","_")
+    Chef::Application.fatal! "You have not configured a Network for the VIP.  Please set node[\"vips\"][\"config\"][\"#{vip}\"][\"network\"]"
+  end
   vrrp_network = node["rabbitmq"]["services"]["queue"]["network"]
   vrrp_interface = get_if_for_net(vrrp_network, node)
-  router_id = node["rabbitmq"]["ha"]["vrid"]
+
+  if router_id = rcb_safe_deref(node, "vips_config_#{vip}_vrid","_")
+    Chef::Log.debug "using #{router_id} for vips.config.#{vip}.vrid"
+  elsif router_id = rcb_safe_deref(node, "rabbitmq.ha.vrid")
+    Chef::Application.fatal! "node[\"rabbitmq\"][\"ha\"][\"vrid\"] is deprecated.  Please set node[\"vips\"][\"config\"][\"#{vip}\"][\"vrid\"] instead"
+  else
+    Chef::Application.fatal! "You have not configured a VRID for the VIP.  Please set node[\"vips\"][\"config\"][\"#{vip}\"][\"vrid\"]"
+  end
 
   keepalived_chkscript "rabbitmq" do
     script "#{platform_options["service_bin"]} rabbitmq-server status"
