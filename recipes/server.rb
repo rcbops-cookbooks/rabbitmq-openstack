@@ -39,6 +39,10 @@ node.set["rabbitmq"]["address"] = "0.0.0.0"
 # rabbitmq.com
 node.set["rabbitmq"]["use_distro_version"] = true
 
+# need to build out [rabbitmq][cluster_disk_nodes] from a search of the nodes
+# that include the rabbitmq-server role
+node.set["rabbitmq"]["cluster_disk_nodes"] = osops_search(search_string="rabbitmq-server",one_or_all=:all,include_me=true,order=[:role]).map(&:hostname).map! { |k| "rabbit@#{k}" }
+
 include_recipe "rabbitmq::default"
 
 # sleep for 30s before restarting rabbitmq-server.  There is a race on new
