@@ -30,6 +30,9 @@ node.set["rabbitmq"]["port"] = node["rabbitmq"]["services"]["queue"]["port"]
 # need to listen on all IPs so we can use a floating vip
 node.set["rabbitmq"]["address"] = "0.0.0.0"
 
+# default to true for clustered rabbit
+node.set["rabbitmq"]["cluster"] = true
+
 # TODO(shep): Using the 'guest' user because it gets special permissions
 #             we should probably setup different users for nova and glance
 # TODO(shep): Should probably use Opscode::OpenSSL::Password for default_password
@@ -103,8 +106,6 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
     virtual_ipaddress Array(vip)
     virtual_router_id router_id  # Needs to be a integer between 1..255
     track_script "rabbitmq"
-    notify_backup "#{platform_options["service_bin"]} rabbitmq-server restart"
-    notify_fault  "#{platform_options["service_bin"]} rabbitmq-server restart"
     notifies :run, "execute[reload-keepalived]", :immediately
   end
 
