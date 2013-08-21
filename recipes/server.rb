@@ -48,20 +48,6 @@ node.set["rabbitmq"]["cluster_disk_nodes"] = osops_search(search_string="rabbitm
 
 include_recipe "rabbitmq::default"
 
-# sleep for 30s before restarting rabbitmq-server.  There is a race on new
-# installs due to keepalived restarting rabbitmq-server on state transitions.
-# this is a workaround until we get real clustered rabbitmq-server
-# TODO(breu): remove this when clustered rabbitmq-server is done
-rewind "service[rabbitmq-server]" do
-#service "rabbitmq-server" do
-  ignore_failure false
-  retries 5
-  start_command "sleep 15s ; service rabbitmq-server start"
-  stop_command "sleep 15s ; service rabbitmq-server stop"
-  restart_command "sleep 15s ; service rabbitmq-server restart"
-  action [ :enable ]
-end
-
 # TODO - this needs to be templated out
 rabbitmq_user "add guest user" do
   user "guest"
