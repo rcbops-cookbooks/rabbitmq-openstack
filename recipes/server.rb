@@ -19,8 +19,6 @@
 
 
 ::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
-chef_gem "chef-rewind"
-require 'chef/rewind'
 
 include_recipe "osops-utils"
 platform_options = node["rabbitmq"]["platform"]
