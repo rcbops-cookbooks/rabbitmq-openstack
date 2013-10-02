@@ -85,12 +85,22 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
     action :create
   end
 
+  file "/etc/keepalived/update_route.sh" do
+    source "update_route.sh"
+    mode 0700
+    group "root"
+    owner "root"
+  end
+
   keepalived_vrrp vrrp_name do
     interface vrrp_interface
     virtual_ipaddress Array(vip)
     virtual_router_id router_id  # Needs to be a integer between 1..255
     track_script "rabbitmq"
     notifies :run, "execute[reload-keepalived]", :immediately
+    notify_master "/etc/keepalived/update_route.sh add #{Array(vip)}"
+    notify_backup "/etc/keepalived/update_route.sh del #{Array(vip)}"
+    notify_fault "/etc/keepalived/update_route.sh del #{Array(vip)}"
   end
 
 end
