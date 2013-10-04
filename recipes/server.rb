@@ -25,8 +25,7 @@ platform_options = node["rabbitmq"]["platform"]
 
 # set some rabbit attributes
 node.set["rabbitmq"]["port"] = node["rabbitmq"]["services"]["queue"]["port"]
-# need to listen on all IPs so we can use a floating vip
-node.set["rabbitmq"]["address"] = "0.0.0.0"
+node.set["rabbitmq"]["address"] = get_ip_for_net(node['rabbitmq']['services']['queue']['network'])
 
 # default to true for clustered rabbit
 node.set["rabbitmq"]["cluster"] = true
@@ -38,7 +37,7 @@ node.set["rabbitmq"]["cluster"] = true
 
 # default to using distro-provided packages, otherwise we'll get 3.x.x from 
 # rabbitmq.com
-node.set["rabbitmq"]["use_distro_version"] = true
+node.set["rabbitmq"]["use_distro_version"] = false
 
 # need to build out [rabbitmq][cluster_disk_nodes] from a search of the nodes
 # that include the rabbitmq-server role
@@ -60,6 +59,18 @@ rabbitmq_user "set guest user permissions" do
   action :set_permissions
 end
 
+rabbitmq_policy "ha-all" do
+  pattern "^.*"
+  params({"ha-mode"=>"all", "ha-sync-mode"=>"automatic"})
+  priority 1
+  action :set
+end
+
+rabbitmq_plugin "rabbitmq_management" do
+  action :enable
+  notifies :restart, "service[#{node['rabbitmq']['service_name']}]"
+end
+
 # is there a vip for us? if so, set up keepalived vrrp
 if rcb_safe_deref(node, "vips.rabbitmq-queue")
   include_recipe "keepalived"
@@ -69,6 +80,7 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
     Chef::Application.fatal! "You have not configured a Network for the VIP.  Please set node[\"vips\"][\"config\"][\"#{vip}\"][\"network\"]"
   end
   vrrp_network = node["rabbitmq"]["services"]["queue"]["network"]
+  #     real_servers get_bind_endpoint("rabbitmq", "queue", node)
   vrrp_interface = get_if_for_net(vrrp_network, node)
 
   if router_id = rcb_safe_deref(node, "vips_config_#{vip}_vrid","_")
@@ -85,22 +97,15 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
     action :create
   end
 
-  file "/etc/keepalived/update_route.sh" do
-    source "update_route.sh"
-    mode 0700
-    group "root"
-    owner "root"
-  end
-
   keepalived_vrrp vrrp_name do
     interface vrrp_interface
     virtual_ipaddress Array(vip)
     virtual_router_id router_id  # Needs to be a integer between 1..255
     track_script "rabbitmq"
+    notify_master "/etc/keepalived/update_route.sh add #{vip}"
+    notify_backup "/etc/keepalived/update_route.sh del #{vip}"
+    notify_fault "/etc/keepalived/update_route.sh del #{vip}"
+    notify_stop "/etc/keepalived/update_route.sh del #{vip}"
     notifies :run, "execute[reload-keepalived]", :immediately
-    notify_master "/etc/keepalived/update_route.sh add #{Array(vip)}"
-    notify_backup "/etc/keepalived/update_route.sh del #{Array(vip)}"
-    notify_fault "/etc/keepalived/update_route.sh del #{Array(vip)}"
   end
-
 end
