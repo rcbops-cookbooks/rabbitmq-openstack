@@ -2,7 +2,7 @@ name              "rabbitmq-openstack"
 maintainer        "Rackspace US, Inc."
 license           "Apache 2.0"
 description       "Makes the rabbitmq cookbook behave correctly with OpenStack"
-version           "4.1.3"
+version           IO.read(File.join(File.dirname(__FILE__), 'VERSION'))
 
 %w{ centos ubuntu }.each do |os|
   supports os
