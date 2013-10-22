@@ -35,9 +35,13 @@ node.set["rabbitmq"]["cluster"] = true
 # TODO(shep): Should probably use Opscode::OpenSSL::Password for default_password
 #
 
-# default to using distro-provided packages, otherwise we'll get 3.x.x from 
-# rabbitmq.com
-node.set["rabbitmq"]["use_distro_version"] = false
+# default to using distro-provided packages for RHEL based systems since 3.x
+# is in EPEL.  Otherwise we need to get it from rabbitmq.com
+if platform_family?("rhel","fedora")
+  node.override["rabbitmq"]["use_distro_version"] = true
+else
+  node.override["rabbitmq"]["use_distro_version"] = false
+end
 
 # need to build out [rabbitmq][cluster_disk_nodes] from a search of the nodes
 # that include the rabbitmq-server role
