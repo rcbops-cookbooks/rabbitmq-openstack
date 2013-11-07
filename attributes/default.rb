@@ -8,13 +8,13 @@ when "fedora", "redhat", "centos", "amazon", "scientific"
     "rabbitmq_service" => "rabbitmq-server",
     "rabbitmq_service_regex" => "/etc/rabbitmq/rabbitmq",
     "service_bin" => "/sbin/service",
-    "package_overrides" => ""
+    "package_options" => ""
   }
 when "ubuntu"
   default["rabbitmq"]["platform"] = {                               # node_attribute
     "rabbitmq_service" => "rabbitmq-server",
     "rabbitmq_service_regex" => "/etc/rabbitmq/rabbitmq",
     "service_bin" => "/usr/sbin/service",
-    "package_overrides" => "-o Dpkg::Options::='--force-confold' -o Dpkg::Options::='--force-confdef'"
+    "package_options" => "-o Dpkg::Options::='--force-confold' -o Dpkg::Options::='--force-confdef'"
   }
 end
