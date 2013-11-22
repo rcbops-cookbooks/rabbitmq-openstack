@@ -110,6 +110,6 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
     notify_backup "/etc/keepalived/update_route.sh del #{vip}"
     notify_fault "/etc/keepalived/update_route.sh del #{vip}"
     notify_stop "/etc/keepalived/update_route.sh del #{vip}"
-    notifies :run, "execute[reload-keepalived]", :immediately
+    notifies :restart, "service[keepalived]", :immediately
   end
 end
