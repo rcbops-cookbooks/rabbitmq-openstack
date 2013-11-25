@@ -27,6 +27,9 @@ platform_options = node["rabbitmq"]["platform"]
 node.set["rabbitmq"]["port"] = node["rabbitmq"]["services"]["queue"]["port"]
 node.set["rabbitmq"]["address"] = get_ip_for_net(node['rabbitmq']['services']['queue']['network'])
 
+# override upstream defaults
+node.override["rabbitmq"]["tcp_listen_keepalive"] = true
+
 # default to true for clustered rabbit
 node.set["rabbitmq"]["cluster"] = true
 
