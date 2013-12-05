@@ -25,8 +25,10 @@ platform_options = node["rabbitmq"]["platform"]
 
 # set some rabbit attributes
 node.set["rabbitmq"]["port"] = node["rabbitmq"]["services"]["queue"]["port"]
-# need to listen on all IPs so we can use a floating vip
-node.set["rabbitmq"]["address"] = "0.0.0.0"
+node.set["rabbitmq"]["address"] = get_ip_for_net(node['rabbitmq']['services']['queue']['network'])
+
+# override upstream defaults
+node.override["rabbitmq"]["tcp_listen_keepalive"] = true
 
 # default to true for clustered rabbit
 node.set["rabbitmq"]["cluster"] = true
@@ -36,9 +38,13 @@ node.set["rabbitmq"]["cluster"] = true
 # TODO(shep): Should probably use Opscode::OpenSSL::Password for default_password
 #
 
-# default to using distro-provided packages, otherwise we'll get 3.x.x from 
-# rabbitmq.com
-node.set["rabbitmq"]["use_distro_version"] = true
+# default to using distro-provided packages for RHEL based systems since 3.x
+# is in EPEL.  Otherwise we need to get it from rabbitmq.com
+if platform_family?("rhel","fedora")
+  node.override["rabbitmq"]["use_distro_version"] = true
+else
+  node.override["rabbitmq"]["use_distro_version"] = false
+end
 
 # need to build out [rabbitmq][cluster_disk_nodes] from a search of the nodes
 # that include the rabbitmq-server role
@@ -60,6 +66,18 @@ rabbitmq_user "set guest user permissions" do
   action :set_permissions
 end
 
+rabbitmq_policy "ha-all" do
+  pattern "^.*"
+  params({"ha-mode"=>"all", "ha-sync-mode"=>"automatic"})
+  priority 1
+  action :set
+end
+
+rabbitmq_plugin "rabbitmq_management" do
+  action :enable
+  notifies :restart, "service[#{node['rabbitmq']['service_name']}]"
+end
+
 # is there a vip for us? if so, set up keepalived vrrp
 if rcb_safe_deref(node, "vips.rabbitmq-queue")
   include_recipe "keepalived"
@@ -69,7 +87,9 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
     Chef::Application.fatal! "You have not configured a Network for the VIP.  Please set node[\"vips\"][\"config\"][\"#{vip}\"][\"network\"]"
   end
   vrrp_network = node["rabbitmq"]["services"]["queue"]["network"]
+  #     real_servers get_bind_endpoint("rabbitmq", "queue", node)
   vrrp_interface = get_if_for_net(vrrp_network, node)
+  src_ip = get_ip_for_net(vrrp_network, node)
 
   if router_id = rcb_safe_deref(node, "vips_config_#{vip}_vrid","_")
     Chef::Log.debug "using #{router_id} for vips.config.#{vip}.vrid"
@@ -87,10 +107,12 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
 
   keepalived_vrrp vrrp_name do
     interface vrrp_interface
-    virtual_ipaddress Array(vip)
     virtual_router_id router_id  # Needs to be a integer between 1..255
     track_script "rabbitmq"
-    notifies :run, "execute[reload-keepalived]", :immediately
+    notify_master "/etc/keepalived/notify.sh add #{vrrp_interface} #{vip} #{src_ip}"
+    notify_backup "/etc/keepalived/notify.sh del #{vrrp_interface} #{vip} #{src_ip}"
+    notify_fault "/etc/keepalived/notify.sh del #{vrrp_interface} #{vip} #{src_ip}"
+    notify_stop "/etc/keepalived/notify.sh del #{vrrp_interface} #{vip} #{src_ip}"
+    notifies :restart, "service[keepalived]", :immediately
   end
-
 end
