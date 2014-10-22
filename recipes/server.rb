@@ -92,7 +92,7 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
   end
 
   keepalived_chkscript "rabbitmq" do
-    script "#{platform_options["service_bin"]} rabbitmq-server status"
+    script "#{platform_options["pgrep_bin"]} rabbitmq-server"
     interval 5
     action :create
   end
