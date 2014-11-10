@@ -38,14 +38,6 @@ node.set["rabbitmq"]["cluster"] = true
 # TODO(shep): Should probably use Opscode::OpenSSL::Password for default_password
 #
 
-# default to using distro-provided packages for RHEL based systems since 3.x
-# is in EPEL.  Otherwise we need to get it from rabbitmq.com
-if platform_family?("rhel","fedora")
-  node.override["rabbitmq"]["use_distro_version"] = true
-else
-  node.override["rabbitmq"]["use_distro_version"] = false
-end
-
 # need to build out [rabbitmq][cluster_disk_nodes] from a search of the nodes
 # that include the rabbitmq-server role
 node.set["rabbitmq"]["cluster_disk_nodes"] = osops_search(search_string="rabbitmq-server",one_or_all=:all,include_me=true,order=[:role]).map(&:hostname).map! { |k| "rabbit@#{k}" }
@@ -100,7 +92,7 @@ if rcb_safe_deref(node, "vips.rabbitmq-queue")
   end
 
   keepalived_chkscript "rabbitmq" do
-    script "#{platform_options["service_bin"]} rabbitmq-server status"
+    script "#{platform_options["pgrep_bin"]} rabbitmq-server"
     interval 5
     action :create
   end
