@@ -7,6 +7,7 @@ when "fedora", "redhat", "centos", "amazon", "scientific"
   default["rabbitmq"]["platform"] = {                               # node_attribute
     "rabbitmq_service" => "rabbitmq-server",
     "rabbitmq_service_regex" => "/etc/rabbitmq/rabbitmq",
+    "pgrep_bin" => "/usr/bin/pgrep",
     "service_bin" => "/sbin/service",
     "package_options" => ""
   }
@@ -14,6 +15,7 @@ when "ubuntu"
   default["rabbitmq"]["platform"] = {                               # node_attribute
     "rabbitmq_service" => "rabbitmq-server",
     "rabbitmq_service_regex" => "/etc/rabbitmq/rabbitmq",
+    "pgrep_bin" => "/usr/bin/pgrep",
     "service_bin" => "/usr/sbin/service",
     "package_options" => "-o Dpkg::Options::='--force-confold' -o Dpkg::Options::='--force-confdef'"
   }
